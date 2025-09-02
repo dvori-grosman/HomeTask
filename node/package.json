@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon server.js",
+    "build": "npm start",
     "start": "node server.js",
     "seed:admin": "node src/seed/createAdmin.js"
   },
