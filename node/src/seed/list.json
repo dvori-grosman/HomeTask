@@ -1,0 +1,219 @@
+[
+  {
+    "carNumber": "5689471",
+    "carType": "מסחרי",
+    "createdAt": "2025-09-02T18:56:38.008Z",
+    "customerName": "דוגמא טובה",
+    "dirtLevel": 3,
+    "distanceKm": 49.029,
+    "location": {
+      "address": "",
+      "lat": 31.816534500000003,
+      "lng": 35.1973135
+    },
+    "orderNumber": "SCW-1756839398006-3840",
+    "phone": "0589647854",
+    "priceNis": 208.058,
+    "requestedAt": "2025-09-12T20:56:00.000Z",
+    "serviceType": "חוץ",
+    "status": "ממתין",
+    "timeEstimateMin": 60,
+    "trailerAssigned": {
+      "available_from": "2025-09-02T09:00:00.000Z",
+      "location": {
+        "coordinates": [34.8, 32.1],
+        "type": "Point"
+      },
+      "trailerId": "TT001"
+    },
+    "_id": "68b73de6ad0076636f2f2e1f",
+    "updatedAt": "2025-09-02T18:56:38.008Z",
+    "__v": 0
+  },
+  {
+    "carNumber": "5689472",
+    "carType": "פרטי",
+    "createdAt": "2025-09-02T18:56:38.008Z",
+    "customerName": "משתמש א'",
+    "dirtLevel": 2,
+    "distanceKm": 30.5,
+    "location": {
+      "address": "",
+      "lat": 31.800000,
+      "lng": 35.200000
+    },
+    "orderNumber": "SCW-1756839398006-3841",
+    "phone": "0589647855",
+    "priceNis": 150.000,
+    "requestedAt": "2025-09-12T20:56:00.000Z",
+    "serviceType": "פנים",
+    "status": "ממתין",
+    "timeEstimateMin": 45,
+    "trailerAssigned": {
+      "available_from": "2025-09-02T09:00:00.000Z",
+      "location": {
+        "coordinates": [34.9, 32.2],
+        "type": "Point"
+      },
+      "trailerId": "TT002"
+    },
+    "_id": "68b73de6ad0076636f2f2e2f",
+    "updatedAt": "2025-09-02T18:56:38.008Z",
+    "__v": 0
+  },
+  {
+    "carNumber": "5689473",
+    "carType": "מסחרי",
+    "createdAt": "2025-09-02T18:56:38.008Z",
+    "customerName": "משתמש ב'",
+    "dirtLevel": 4,
+    "distanceKm": 60.0,
+    "location": {
+      "address": "",
+      "lat": 31.810000,
+      "lng": 35.210000
+    },
+    "orderNumber": "SCW-1756839398006-3842",
+    "phone": "0589647856",
+    "priceNis": 250.000,
+    "requestedAt": "2025-09-12T20:56:00.000Z",
+    "serviceType": "חוץ",
+    "status": "ממתין",
+    "timeEstimateMin": 70,
+    "trailerAssigned": {
+      "available_from": "2025-09-02T09:00:00.000Z",
+      "location": {
+        "coordinates": [35.0, 32.3],
+        "type": "Point"
+      },
+      "trailerId": "TT003"
+    },
+    "_id": "68b73de6ad0076636f2f2e3f",
+    "updatedAt": "2025-09-02T18:56:38.008Z",
+    "__v": 0
+  },
+  {
+    "carNumber": "5689474",
+    "carType": "פרטי",
+    "createdAt": "2025-09-02T18:56:38.008Z",
+    "customerName": "משתמש ג'",
+    "dirtLevel": 1,
+    "distanceKm": 15.0,
+    "location": {
+      "address": "",
+      "lat": 31.820000,
+      "lng": 35.220000
+    },
+    "orderNumber": "SCW-1756839398006-3843",
+    "phone": "0589647857",
+    "priceNis": 100.000,
+    "requestedAt": "2025-09-12T20:56:00.000Z",
+    "serviceType": "פנים",
+    "status": "ממתין",
+    "timeEstimateMin": 30,
+    "trailerAssigned": {
+      "available_from": "2025-09-02T09:00:00.000Z",
+      "location": {
+        "coordinates": [35.1, 32.4],
+        "type": "Point"
+      },
+      "trailerId": "TT004"
+    },
+    "_id": "68b73de6ad0076636f2f2e4f",
+    "updatedAt": "2025-09-02T18:56:38.008Z",
+    "__v": 0
+  },
+  {
+    "carNumber": "5689475",
+    "carType": "מסחרי",
+    "createdAt": "2025-09-02T18:56:38.008Z",
+    "customerName": "משתמש ד'",
+    "dirtLevel": 5,
+    "distanceKm": 75.0,
+    "location": {
+      "address": "",
+      "lat": 31.830000,
+      "lng": 35.230000
+    },
+    "orderNumber": "SCW-1756839398006-3844",
+    "phone": "0589647858",
+    "priceNis": 300.000,
+    "requestedAt": "2025-09-12T20:56:00.000Z",
+    "serviceType": "חוץ",
+    "status": "ממתין",
+    "timeEstimateMin": 90,
+    "trailerAssigned": {
+      "available_from": "2025-09-02T09:00:00.000Z",
+      "location": {
+        "coordinates": [35.2, 32.5],
+        "type": "Point"
+      },
+      "trailerId": "TT005"
+    },
+    "_id": "68b73de6ad0076636f2f2e5f",
+    "updatedAt": "2025-09-02T18:56:38.008Z",
+    "__v": 0
+  },
+  {
+    "carNumber": "5689476",
+    "carType": "פרטי",
+    "createdAt": "2025-09-02T18:56:38.008Z",
+    "customerName": "משתמש ה'",
+    "dirtLevel": 2,
+    "distanceKm": 20.0,
+    "location": {
+      "address": "",
+      "lat": 31.840000,
+      "lng": 35.240000
+    },
+    "orderNumber": "SCW-1756839398006-3845",
+    "phone": "0589647859",
+    "priceNis": 120.000,
+    "requestedAt": "2025-09-12T20:56:00.000Z",
+    "serviceType": "פנים",
+    "status": "ממתין",
+    "timeEstimateMin": 40,
+    "trailerAssigned": {
+      "available_from": "2025-09-02T09:00:00.000Z",
+      "location": {
+        "coordinates": [35.3, 32.6],
+        "type": "Point"
+      },
+      "trailerId": "TT006"
+    },
+    "_id": "68b73de6ad0076636f2f2e6f",
+    "updatedAt": "2025-09-02T18:56:38.008Z",
+    "__v": 0
+  },
+  {
+    "carNumber": "5689477",
+    "carType": "מסחרי",
+    "createdAt": "2025-09-02T18:56:38.008Z",
+    "customerName": "משתמש ו'",
+    "dirtLevel": 4,
+    "distanceKm": 55.0,
+    "location": {
+      "address": "",
+      "lat": 31.850000,
+      "lng": 35.250000
+    },
+    "orderNumber": "SCW-1756839398006-3846",
+    "phone": "0589647860",
+    "priceNis": 250.000,
+    "requestedAt": "2025-09-12T20:56:00.000Z",
+    "serviceType": "חוץ",
+    "status": "ממתין",
+    "timeEstimateMin": 80,
+    "trailerAssigned": {
+      "available_from": "2025-09-02T09:00:00.000Z",
+      "location": {
+        "coordinates": [35.4, 32.7],
+        "type": "Point"
+      },
+      "trailerId": "TT007"
+    },
+    "_id": "68b73de6ad0076636f2f2e7f",
+    "updatedAt": "2025-09-02T18:56:38.008Z",
+    "__v": 0
+  }
+]
