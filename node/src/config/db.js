@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
 // Railway מספק MONGO_URL אוטומטית כשאתה מוסיף MongoDB service
-// נסה גם DATABASE_URL כגיבוי (לפעמים Railway משתמש בזה)
 const uri = process.env.MONGO_URL || 
+           process.env.MONGO_URI ||     // עבור תצורות ישנות
            process.env.DATABASE_URL || 
            "mongodb://localhost:27017/Smart-Wash-Car";
 
