@@ -26,6 +26,7 @@ export default function OrderForm({ onSubmit }) {
     distance_km: 10
   });
   const [isUploading, setIsUploading] = useState(false);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
 
   const carTypes = ['פרטי', 'מסחרי', 'ג׳יפ', 'וואן'];
 
@@ -58,71 +59,185 @@ export default function OrderForm({ onSubmit }) {
 
     setIsUploading(true);
     console.log("Uploading file:", file);
-    console.log("File type:", URL.createObjectURL(file));
-    setCarImageFile(URL.createObjectURL(file)); // שמירת הקובץ עצמו
-    setFormData(prev => ({ ...prev, car_image: file })); // שמירת ה-URL הזמני
+    
+    // Create a URL for preview
+    const imageUrl = URL.createObjectURL(file);
+    
+    // Store the URL for preview
+    setCarImageFile(imageUrl);
+    
+    // Store both the file object and the URL in the form data
+    setFormData(prev => ({ 
+      ...prev, 
+      car_image: file,
+      car_image_url: imageUrl
+    }));
 
     setIsUploading(false);
   };
 
 
-  const getCurrentLocation = () => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setFormData(prev => ({
-            ...prev,
-            location_lat: latitude,
-            location_lng: longitude
-          }));
-
-          // קריאה ל-API של Google Maps כדי לקבל כתובת
-          fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=YOUR_API_KEY`)
-            .then(response => response.json())
-            .then(data => {
-              if (data.results && data.results.length > 0) {
-                const address = data.results[0].formatted_address;
-                setFormData(prev => ({
-                  ...prev,
-                  location_address: address
-                }));
-              }
-            })
-            .catch(error => {
-              console.error("שגיאה בקבלת כתובת:", error);
-            });
-        },
-        (error) => {
-          console.error("שגיאה בקבלת מיקום:", error);
-          alert("לא הצלחנו לקבל את המיקום שלך. אנא הכנס כתובת ידנית.");
-        }
-      );
-    } else {
+  const getCurrentLocation = async () => {
+    if (!("geolocation" in navigator)) {
       alert("הדפדפן שלך לא תומך בשירותי מיקום.");
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!formData.customer_name || !formData.phone || !formData.license_plate ||
-      !formData.car_type || formData.service_type.length === 0 ||
-      !formData.preferred_date || !formData.preferred_time) {
-      alert("נא למלא את כל השדות הנדרשים");
       return;
     }
 
-    // נוודא שקואורדינטות ריקות ישלחו כ-null ולא כמחרוזות ריקות
-    const cleanedData = {
-      ...formData,
-      location_lat: formData.location_lat === 32.0853 ? null : formData.location_lat,
-      location_lng: formData.location_lng === 34.7818 ? null : formData.location_lng,
-      // car_image_url: formData.car_image_url || ""
-    };
+    setIsGettingLocation(true);
+    
+    try {
+      // קבלת המיקום הנוכחי
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          resolve,
+          reject,
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 60000
+          }
+        );
+      });
 
-    onSubmit(cleanedData);
+      const { latitude, longitude } = position.coords;
+      console.log("Current location:", latitude, longitude);
+
+      // עדכון קואורדינטות ב-state
+      setFormData(prev => ({
+        ...prev,
+        location_lat: latitude,
+        location_lng: longitude
+      }));
+
+      // קריאה לשירות Geocoding כדי לקבל כתובת
+      await getAddressFromCoordinates(latitude, longitude);
+
+    } catch (error) {
+      console.error("שגיאה בקבלת מיקום:", error);
+      let errorMessage = "לא הצלחנו לקבל את המיקום שלך.";
+      
+      if (error.code === 1) {
+        errorMessage = "נדרשת הרשאה לגישה למיקום. אנא אפשר גישה למיקום בדפדפן.";
+      } else if (error.code === 2) {
+        errorMessage = "לא ניתן לקבוע את המיקום. נסה שוב מאוחר יותר.";
+      } else if (error.code === 3) {
+        errorMessage = "פג זמן הקבלת המיקום. נסה שוב.";
+      }
+      
+      alert(errorMessage);
+    } finally {
+      setIsGettingLocation(false);
+    }
   };
+
+  const getAddressFromCoordinates = async (lat, lng) => {
+    try {
+      // נסה קודם עם OpenStreetMap Nominatim (חינמי)
+      const nominatimResponse = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=he,en`
+      );
+      
+      if (nominatimResponse.ok) {
+        const data = await nominatimResponse.json();
+        if (data && data.address) {
+          const address = formatAddress(data.address);
+          console.log("Address from Nominatim:", address);
+          
+          setFormData(prev => ({
+            ...prev,
+            location_address: address
+          }));
+          return;
+        }
+      }
+
+      // אם Nominatim לא עבד, נסה עם Google Maps (דורש API key)
+      // הערה: יש להחליף YOUR_GOOGLE_MAPS_API_KEY במפתח אמיתי
+      const googleApiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || 'YOUR_GOOGLE_MAPS_API_KEY';
+      
+      if (googleApiKey && googleApiKey !== 'YOUR_GOOGLE_MAPS_API_KEY') {
+        const googleResponse = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${googleApiKey}&language=he`
+        );
+        
+        if (googleResponse.ok) {
+          const data = await googleResponse.json();
+          if (data.results && data.results.length > 0) {
+            const address = data.results[0].formatted_address;
+            console.log("Address from Google:", address);
+            
+            setFormData(prev => ({
+              ...prev,
+              location_address: address
+            }));
+            return;
+          }
+        }
+      }
+
+      // אם שני השירותים לא עבדו
+      throw new Error("לא ניתן לקבוע כתובת עבור המיקום");
+      
+    } catch (error) {
+      console.error("שגיאה בקבלת כתובת:", error);
+      
+      // הצג את הקואורדינטות כ fallback
+      setFormData(prev => ({
+        ...prev,
+        location_address: `קואורדינטות: ${lat.toFixed(6)}, ${lng.toFixed(6)}`
+      }));
+      
+      alert("לא הצלחנו לקבוע את הכתובת המדויקת, אך המיקום נקלט בהצלחה.");
+    }
+  };
+
+  const formatAddress = (addressComponents) => {
+    // פורמט כתובת מ-Nominatim
+    const parts = [];
+    
+    if (addressComponents.house_number) {
+      parts.push(addressComponents.house_number);
+    }
+    
+    if (addressComponents.road) {
+      parts.push(addressComponents.road);
+    }
+    
+    if (addressComponents.neighbourhood || addressComponents.suburb) {
+      parts.push(addressComponents.neighbourhood || addressComponents.suburb);
+    }
+    
+    if (addressComponents.city || addressComponents.town || addressComponents.village) {
+      parts.push(addressComponents.city || addressComponents.town || addressComponents.village);
+    }
+    
+    if (addressComponents.country) {
+      parts.push(addressComponents.country);
+    }
+    
+    return parts.join(', ') || addressComponents.display_name || 'כתובת לא זמינה';
+  };
+
+const handleSubmit = (e) => {
+  e.preventDefault();
+
+  if (!formData.customer_name || !formData.phone || !formData.license_plate ||
+    !formData.car_type || formData.service_type.length === 0 ||
+    !formData.preferred_date || !formData.preferred_time) {
+    alert("נא למלא את כל השדות הנדרשים");
+    return;
+  }
+
+  // נוודא שקואורדינטות ריקות ישלחו כ-null ולא כמחרוזות ריקות
+  const cleanedData = {
+    ...formData,
+    location_lat: formData.location_lat === 32.0853 ? null : formData.location_lat,
+    location_lng: formData.location_lng === 34.7818 ? null : formData.location_lng,
+  };
+
+  onSubmit(cleanedData);
+};
+
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -256,19 +371,42 @@ export default function OrderForm({ onSubmit }) {
           </div>
           מיקום השירות
         </h3>
-        <Button
-          type="button"
-          onClick={getCurrentLocation}
-          className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white rounded-lg"
-        >
-          <MapPin className="w-4 h-4 ml-2" />
-          השתמש במיקום הנוכחי
-        </Button>
-        {formData.location_lat !== null && formData.location_lng !== null && (
-          <div className="bg-white p-3 rounded-lg border border-gray-200">
-            <p className="text-gray-700 font-medium">
-              ✅ מיקום נקלט: {formData.location_lat.toFixed(6)}, {formData.location_lng.toFixed(6)} - {formData.location_address}
-            </p>
+        <div className="space-y-4">
+          <Button
+            type="button"
+            onClick={getCurrentLocation}
+            disabled={isGettingLocation}
+            className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <MapPin className="w-4 h-4 ml-2" />
+            {isGettingLocation ? "מאתר מיקום..." : "השתמש במיקום הנוכחי"}
+          </Button>
+          
+          <div>
+            <Label className="text-gray-700 font-medium mb-2 block">או הכנס כתובת ידנית:</Label>
+            <Label className="block p-3 border-2 border-gray-200 rounded-lg bg-gray-50 text-gray-800 min-h-[42px] flex items-center">
+              {formData.location_address || "הכנס כתובת מלאה (רחוב, מספר בית, עיר)"}
+            </Label>
+          </div>
+        </div>
+        {(formData.location_lat !== null && formData.location_lng !== null) || formData.location_address && (
+          <div className="bg-white p-4 rounded-lg border-2 border-green-200 bg-green-50 mt-4">
+            <div className="flex items-start gap-3">
+              <div className="bg-green-500 p-1 rounded-full mt-1">
+                <MapPin className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-green-800 font-bold mb-1">✅ מיקום נקלט בהצלחה</p>
+                <p className="text-green-700 font-medium">
+                  {formData.location_address || "מיקום נקלט"}
+                </p>
+                {formData.location_lat && formData.location_lng && (
+                  <p className="text-green-600 text-sm mt-1">
+                    קואורדינטות: {formData.location_lat.toFixed(6)}, {formData.location_lng.toFixed(6)}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>

@@ -89,7 +89,7 @@ export async function addOrder(req, res, next) {
     const additionalTime = (serviceType === 'פוליש' ? 15 : 0) + (serviceType === 'ווקס' ? 10 : 0);
     const timeEstimateMin = baseTime + dirtTime + additionalTime;
 
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
     const order = await Order.create({
       customerName,

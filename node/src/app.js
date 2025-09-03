@@ -4,10 +4,14 @@ import morgan from 'morgan';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import './config/db.js';
+import { ensureUploadsDir, UPLOADS_DIR } from './utils/ensureUploadsDir.js';
 
 import adminRoutes from './routes/adminRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import travelTrailerRoutes from './routes/travelTrailerRoutes.js';
+
+// Ensure uploads directory exists
+ensureUploadsDir();
 
 const app = express();
 
@@ -19,7 +23,7 @@ app.use(morgan('dev'));
 // static for uploaded images
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+app.use('/uploads', express.static(UPLOADS_DIR));
 
 app.get('/', (req, res) => {
   res.json({ status: 'OK', service: 'Smart Car Wash Pro 2.0' });

@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 // import TrackingStatus from "../components/tracking/TrackingStatus";
-import { Search, Loader, AlertCircle, MapPin, Car, User, QrCode, FileText, Clipboard } from "lucide-react";
+import { Search, Loader, AlertCircle, MapPin, Car, User, QrCode, FileText, Clipboard, Camera } from "lucide-react";
+import QRScanner from "@/components/tracking/QRScanner";
 
 export default function Tracking() {
   const [searchValue, setSearchValue] = useState("");
@@ -10,6 +11,7 @@ export default function Tracking() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchType, setSearchType] = useState("orderNumber"); // "orderNumber" or "qrCode"
+  const [showScanner, setShowScanner] = useState(false);
 
   const formatDate = (date) => {
     try {
@@ -162,15 +164,26 @@ export default function Tracking() {
             
             {/* Paste from Clipboard Button */}
             {searchType === "qrCode" && (
-              <Button
-                onClick={handlePasteFromClipboard}
-                disabled={isLoading}
-                variant="outline"
-                className="border-2 border-purple-200 hover:border-purple-400 hover:bg-purple-50 text-purple-600 px-4"
-                title="הדבק מהלוח"
-              >
-                <Clipboard className="w-5 h-5" />
-              </Button>
+              <>
+                <Button
+                  onClick={handlePasteFromClipboard}
+                  disabled={isLoading}
+                  variant="outline"
+                  className="border-2 border-purple-200 hover:border-purple-400 hover:bg-purple-50 text-purple-600 px-4"
+                  title="הדבק מהלוח"
+                >
+                  <Clipboard className="w-5 h-5" />
+                </Button>
+                <Button
+                  onClick={() => setShowScanner(true)}
+                  disabled={isLoading}
+                  variant="outline"
+                  className="border-2 border-green-200 hover:border-green-400 hover:bg-green-50 text-green-600 px-4"
+                  title="סרוק עם המצלמה"
+                >
+                  <Camera className="w-5 h-5" />
+                </Button>
+              </>
             )}
             
             <Button
@@ -203,7 +216,9 @@ export default function Tracking() {
                 <QrCode className="w-8 h-8 mx-auto mb-2 text-purple-400" />
                 <p className="font-medium">חיפוש לפי קוד QR</p>
                 <p className="text-sm">העתק את קוד ה-QR מהחשבונית והדבק כאן</p>
-                <p className="text-xs text-purple-600 mt-1">💡 לחץ על הכפתור 📋 להדבקה מהירה מהלוח</p>
+                <p className="text-xs text-purple-600 mt-1">
+                  💡 לחץ על הכפתור 📋 להדבקה מהירה מהלוח או 📷 לסריקה עם המצלמה
+                </p>
               </div>
             )}
           </div>
@@ -325,6 +340,19 @@ export default function Tracking() {
             </Button>
           </div>
         </div>
+      )}
+
+      {/* QR Scanner Modal */}
+      {showScanner && (
+        <QRScanner
+          onScan={(data) => {
+            setSearchValue(data);
+            setShowScanner(false);
+            // Automatically search after scan
+            setTimeout(() => searchOrder(), 500);
+          }}
+          onClose={() => setShowScanner(false)}
+        />
       )}
     </div>
   );

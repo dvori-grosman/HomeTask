@@ -127,7 +127,19 @@ const updateOrderStatus = async (orderNumber, newStatus) => {
                 </div>
 
                 <div className="flex flex-col gap-3">
-
+                  <Button
+                    onClick={() => setSelectedOrder(
+                      selectedOrder?.id === (order._id || order.id) 
+                        ? null 
+                        : { id: order._id || order.id }
+                    )}
+                    variant="outline"
+                    size="sm"
+                    className="border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50"
+                  >
+                    <Eye className="w-4 h-4 ml-2" />
+                    {selectedOrder?.id === (order._id || order.id) ? 'הסתר פרטים' : 'הצג פרטים'}
+                  </Button>
 
                   <select
                     value={order.status}
@@ -174,13 +186,23 @@ const updateOrderStatus = async (orderNumber, newStatus) => {
                     )}
                   </div>
 
-                  {order.imageUrl && (
+                  {order.imageUrl && order.imageUrl !== "undefined" && (
                     <div className="mt-4 text-center">
                       <h4 className="font-bold text-gray-900 mb-3">תמונת הרכב</h4>
+                      <p className="text-xs text-gray-500 mb-2">נתיב תמונה: {order.imageUrl}</p>
                       <img
-                        src={order.imageUrl}
+                        src={`http://localhost:4000${order.imageUrl}`}
                         alt="תמונת הרכב"
                         className="w-64 h-48 object-cover rounded-lg shadow-md mx-auto"
+                        onError={(e) => {
+                          console.error("Error loading image:", e);
+                          console.error("Image URL:", `http://localhost:4000${order.imageUrl}`);
+                          e.target.src = "https://via.placeholder.com/300x200?text=תמונה+לא+זמינה";
+                          e.target.alt = "תמונה לא זמינה";
+                        }}
+                        onLoad={() => {
+                          console.log("Image loaded successfully:", `http://localhost:4000${order.imageUrl}`);
+                        }}
                       />
                     </div>
                   )}

@@ -67,13 +67,18 @@ export default function OrderSummary({ orderData, onConfirm, onBack, isSubmittin
       </div>
 
       {/* תמונת הרכב */}
-      {orderData.car_image_url && (
+      {orderData.car_image_url && orderData.car_image_url !== "undefined" && (
         <div className="bg-white rounded-xl p-6 shadow-lg">
           <h4 className="font-bold text-gray-900 text-lg mb-4">תמונת הרכב</h4>
           <img
             src={orderData.car_image_url}
             alt="תמונת הרכב"
             className="w-64 h-48 object-cover rounded-lg shadow-md mx-auto"
+            onError={(e) => {
+              console.error("Error loading image:", e);
+              e.target.src = "https://via.placeholder.com/300x200?text=תמונה+לא+זמינה";
+              e.target.alt = "תמונה לא זמינה";
+            }}
           />
         </div>
       )}

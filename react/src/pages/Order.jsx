@@ -82,7 +82,7 @@ export default function Order() {
       formDataToSend.append('calculatedPrice', orderData.calculated_price);
 
       if (orderData.car_image) {
-        formDataToSend.append('carImage', orderData.car_image_url); // הוספת קובץ התמונה ל-FormData
+        formDataToSend.append('carImage', orderData.car_image); // הוספת קובץ התמונה ל-FormData
       }
 
       // שליחת הבקשה לשרת - שנה את הפורט לפי השרת שלך
