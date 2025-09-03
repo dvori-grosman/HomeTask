@@ -6,52 +6,57 @@ import { he } from "date-fns/locale";
 import { Eye, Phone, Car, Clock, DollarSign } from "lucide-react";
 
 
+
 export default function OrdersList({ orders, onOrderUpdate }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const updateOrderStatus = async (orderId, newStatus) => {
-    setIsUpdating(true);
-    try {
-      const token = localStorage.getItem('admin-token'); // קבלת הטוקן מה-localStorage
-      // קריאה לשרת לעדכון הסטטוס
-      const response = await fetch(`http://localhost:4000/api/orders/${orderId}`, {
-        method: 'PUT', // או PATCH - תלוי איך השרת שלך מוגדר
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` // הוספת הטוקן לכותרת
-        },
-        body: JSON.stringify({
-          status: newStatus
-        })
-      });
+const updateOrderStatus = async (orderNumber, newStatus) => {
+  setIsUpdating(true);
+  try {
+    const token = localStorage.getItem('admin-token'); // קבלת הטוקן מה-localStorage
 
-      if (!response.ok) {
-        let errorMessage = 'שגיאה בעדכון הסטטוס';
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch {
-          errorMessage = `שגיאה ${response.status}: ${response.statusText}`;
-        }
-        throw new Error(errorMessage);
+    const response = await fetch(`http://localhost:4000/api/orders/${orderNumber}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        status: newStatus
+      })
+    });
+    
+    console.log('Response status:', response.status);
+    console.log('Response status text:', response.statusText);
+
+
+    if (!response.ok) {
+      let errorMessage = 'שגיאה בעדכון הסטטוס';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorMessage;
+      } catch {
+        errorMessage = `שגיאה ${response.status}: ${response.statusText}`;
       }
-
-      const updatedOrder = await response.json();
-      console.log('הזמנה עודכנה בהצלחה:', updatedOrder);
-
-
-      // רענון רשימת ההזמנות
-      onOrderUpdate();
-
-      alert(`הסטטוס עודכן בהצלחה ל: ${newStatus}`);
-
-    } catch (error) {
-      console.error("שגיאה בעדכון סטטוס:", error);
-      alert(`אירעה שגיאה בעדכון הסטטוס: ${error.message}`);
+      throw new Error(errorMessage);
     }
-    setIsUpdating(false);
-  };
+
+    const updatedOrder = await response.json();
+    console.log('הזמנה עודכנה בהצלחה:', updatedOrder);
+
+    // רענון רשימת ההזמנות
+    onOrderUpdate();
+
+    alert(`הסטטוס עודכן בהצלחה ל: ${newStatus}`);
+
+  } catch (error) {
+    console.error("שגיאה בעדכון סטטוס:", error);
+    alert(`אירעה שגיאה בעדכון הסטטוס: ${error.message}`);
+  }
+  setIsUpdating(false);
+};
+
 
 
   const getStatusColor = (status) => {
@@ -65,7 +70,8 @@ export default function OrdersList({ orders, onOrderUpdate }) {
     return colors[status] || colors["ממתין"];
   };
 
-  const statuses = ["ממתין", "בדרך", "בעבודה", "הושלם", "בוטל"];
+
+  const statuses = ["ממתין", "בדרך", "שטיפה", "הושלם"];
 
   return (
     <div className="space-y-6">
@@ -121,11 +127,11 @@ export default function OrdersList({ orders, onOrderUpdate }) {
                 </div>
 
                 <div className="flex flex-col gap-3">
-                  
+
 
                   <select
                     value={order.status}
-                    onChange={(e) => updateOrderStatus(order._id || order.id, e.target.value)}
+                    onChange={(e) => updateOrderStatus(order.orderNumber, e.target.value)}
                     disabled={isUpdating}
                     className={`border-2 border-gray-200 rounded-lg bg-white font-medium text-sm p-2 focus:border-blue-500 transition-colors ${isUpdating ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
@@ -134,7 +140,7 @@ export default function OrdersList({ orders, onOrderUpdate }) {
                       <option key={status} value={status}>{status}</option>
                     ))}
                   </select>
-                  
+
                 </div>
               </div>
 

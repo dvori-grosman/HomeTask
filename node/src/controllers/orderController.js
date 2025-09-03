@@ -120,7 +120,7 @@ export async function addOrder(req, res, next) {
 // PUT /api/orders/:id (admin only)
 export async function editOrder(req, res, next) {
   try {
-    const id = req.params.id;
+    const orderNumber = req.params.orderNumber;
     const allowed = [
       'customerName',
       'phone',
@@ -140,33 +140,53 @@ export async function editOrder(req, res, next) {
 
     if (updates.requestedAt) updates.requestedAt = ensureDate(updates.requestedAt);
 
-    // Recompute time & price if relevant fields changed
-    const recompute = (updates.dirtLevel !== undefined) || (updates.distanceKm !== undefined) || (updates.serviceType !== undefined);
+    // השג את ההזמנה הקיימת לפי orderNumber
+    const existingOrder = await Order.findOne({ orderNumber });
+    if (!existingOrder) return res.status(404).json({ message: 'Order not found' });
+
+    // 🔹 אם הסטטוס השתנה – הוספת לוג חדש
+    if (updates.status && updates.status !== existingOrder.status) {
+      existingOrder.statusLogs.push({ status: updates.status });
+    }
+
+    // חישוב מחדש אם צריך
+    const recompute =
+      updates.dirtLevel !== undefined ||
+      updates.distanceKm !== undefined ||
+      updates.serviceType !== undefined;
 
     if (recompute) {
-      const dirt = updates.dirtLevel !== undefined ? updates.dirtLevel : (await Order.findById(id)).dirtLevel;
-      const dist = updates.distanceKm !== undefined ? updates.distanceKm : (await Order.findById(id)).distanceKm;
-      const svc = updates.serviceType !== undefined ? updates.serviceType : (await Order.findById(id)).serviceType;
+      const dirt = updates.dirtLevel ?? existingOrder.dirtLevel;
+      const dist = updates.distanceKm ?? existingOrder.distanceKm;
+      const svc = updates.serviceType ?? existingOrder.serviceType;
       updates.timeEstimateMin = calcTimeEstimateMinutes(svc, dirt);
       updates.priceNis = calcPriceNis(dirt, dist);
     }
 
-    // If requestedAt changed, re-select trailer
+    // אם תאריך הבקשה השתנה – חיפוש ניידת חדשה
     if (updates.requestedAt) {
-      const trailer = await TravelTrailer.find({ available_from: { $gte: updates.requestedAt } })
+      const trailer = await TravelTrailer.find({
+        available_from: { $gte: updates.requestedAt }
+      })
         .sort({ available_from: 1 })
         .limit(1);
-      if (!trailer.length) return res.status(409).json({ message: 'אין ניידת זמינה בזמן החדש' });
+
+      if (!trailer.length)
+        return res.status(409).json({ message: 'אין ניידת זמינה בזמן החדש' });
+
       updates.trailerAssigned = trailer[0]._id;
     }
 
-    const order = await Order.findByIdAndUpdate(id, updates, { new: true }).populate('trailerAssigned');
-    if (!order) return res.status(404).json({ message: 'Order not found' });
+    // עדכון השדות ושמירה
+    Object.assign(existingOrder, updates);
+    await existingOrder.save();
 
-    res.json(order);
+    await existingOrder.populate('trailerAssigned');
+    res.json(existingOrder);
   } catch (e) {
     next(e);
   }
 }
+
 
 //

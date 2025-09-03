@@ -9,6 +9,6 @@ const router = Router();
 router.get('/', authRequired, getAllOrders);
 router.get('/getOrder/:orderNumber', getOrderById);
 router.post('/', upload.single('carImage'), addOrder);
-router.put('/:id', authRequired, upload.single('carImage'), editOrder);
+router.put('/:orderNumber', authRequired, upload.single('carImage'), editOrder);
 
 export default router;

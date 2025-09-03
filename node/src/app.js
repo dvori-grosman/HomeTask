@@ -25,16 +25,7 @@ app.get('/', (req, res) => {
   res.json({ status: 'OK', service: 'Smart Car Wash Pro 2.0' });
 });
 
-// הגדרת תיקיית ה-build
-app.use(express.static(path.join(__dirname, 'build')));
-
-// כל בקשה לאפליקציה תופנה ל-index.html
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
-
 app.use('/api/admin', adminRoutes);
-
 app.use('/api/orders', orderRoutes);
 app.use('/api/trailers', travelTrailerRoutes);
 

@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon server.js",
-    "build": "npm start",
-    "start": "node server.js",
+  "start": "node server.js", 
+    "build": "npm install",
     "seed:admin": "node src/seed/createAdmin.js"
   },
   "dependencies": {
